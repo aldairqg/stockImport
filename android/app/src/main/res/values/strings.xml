@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">jaifon</string>
+    <string name="title_activity_main">jaifon</string>
+    <string name="package_name">app.jaifon.com</string>
+    <string name="custom_url_scheme">app.jaifon.com</string>
+</resources>
