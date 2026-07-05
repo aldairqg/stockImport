@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../db/database';
+import { useLedger } from '../../hooks/useSupabaseQuery';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { AmountInput } from '../ui/AmountInput';
@@ -26,8 +25,7 @@ export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) 
   const { registerSale } = useSalesStore();
   const { addToast } = useToastStore();
 
-  // Obtener TCPP actual por si la venta es en USD (para calcular ganancia en PEN)
-  const ledgerEntries = useLiveQuery(() => db.ledger.orderBy('date').toArray());
+  const ledgerEntries = useLedger();
   const tcpp = useMemo(() => {
     if (!ledgerEntries) return 3.8;
     const lastExchange = ledgerEntries.filter(el => el.type === 'CambioDivisa').pop();

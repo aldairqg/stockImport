@@ -100,7 +100,7 @@ export function EditProductModal({ isOpen, onClose, product }: EditProductModalP
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Editar Equipo"
+      title="Editar Producto"
       footer={
         <div className="flex justify-end gap-3 w-full">
           <Button variant="ghost" onClick={onClose}>Cancelar</Button>

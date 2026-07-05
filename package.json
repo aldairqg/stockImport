@@ -12,6 +12,7 @@
   "dependencies": {
     "@capacitor/android": "^8.4.1",
     "@capacitor/core": "^8.4.1",
+    "@supabase/supabase-js": "^2.110.0",
     "clsx": "^2.1.1",
     "dexie": "^4.4.4",
     "dexie-react-hooks": "^4.4.0",

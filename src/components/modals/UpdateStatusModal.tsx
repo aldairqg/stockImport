@@ -74,7 +74,7 @@ export function UpdateStatusModal({ isOpen, onClose, product }: UpdateStatusModa
             </div>
             <div>
               <p className="font-semibold text-slate-800">En Tránsito</p>
-              <p className="text-xs text-slate-500">El equipo viene en camino hacia Perú.</p>
+              <p className="text-xs text-slate-500">El producto viene en camino hacia Perú.</p>
             </div>
           </button>
 
@@ -93,7 +93,7 @@ export function UpdateStatusModal({ isOpen, onClose, product }: UpdateStatusModa
             </div>
             <div>
               <p className="font-semibold text-slate-800">En Stock</p>
-              <p className="text-xs text-slate-500">El equipo ya llegó y está listo para la venta.</p>
+              <p className="text-xs text-slate-500">El producto ya llegó y está listo para la venta.</p>
             </div>
           </button>
         </div>

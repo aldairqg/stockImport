@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../db/database';
+import { useLedger } from '../../hooks/useSupabaseQuery';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { AmountInput } from '../ui/AmountInput';
@@ -46,11 +45,9 @@ export function AddProductModal({ isOpen, onClose }: AddProductModalProps) {
   const [redChannel, setRedChannel] = useState(DEFAULT_SETTINGS.red_channel_cost_usd);
   const [otherCosts, setOtherCosts] = useState(0);
   
-  // Custom TC
-  const ledgerEntries = useLiveQuery(() => db.ledger.orderBy('date').toArray());
+  const ledgerEntries = useLedger();
   const tcpp = useMemo(() => {
     if (!ledgerEntries) return 3.8;
-    const currentUsd = ledgerEntries.reduce((acc, el) => el.currency === 'USD' ? el.balance_usd : acc, 0);
     const lastExchange = ledgerEntries.filter(el => el.type === 'CambioDivisa').pop();
     return lastExchange ? lastExchange.exchange_rate || 3.8 : 3.8;
   }, [ledgerEntries]);

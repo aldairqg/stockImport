@@ -1,5 +1,4 @@
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../db/database';
+import { useLedger, useProducts, useSales } from '../hooks/useSupabaseQuery';
 import { StatCard } from '../components/ui/StatCard';
 import { Badge } from '../components/ui/Badge';
 import { Wallet, Package, TrendingUp, Activity, ArrowRight, CircleDollarSign } from 'lucide-react';
@@ -8,9 +7,9 @@ import { Link } from 'react-router-dom';
 import { useMemo } from 'react';
 
 export default function DashboardPage() {
-  const ledger = useLiveQuery(() => db.ledger.orderBy('date').reverse().limit(10).toArray());
-  const products = useLiveQuery(() => db.products.toArray());
-  const sales = useLiveQuery(() => db.sales.toArray());
+  const ledger = useLedger(10);
+  const products = useProducts();
+  const sales = useSales();
 
   const { totalLiquidityPen, activeInvestment, netProfit, globalRoi } = useMemo(() => {
     if (!ledger || !products || !sales) return { totalLiquidityPen: 0, activeInvestment: 0, netProfit: 0, globalRoi: 0 };
@@ -26,7 +25,7 @@ export default function DashboardPage() {
     
     const totalLiquidityPen = penBalance + (usdBalance * tcpp);
 
-    // 2. Inversión Activa (Equipos en Tránsito o En Stock)
+    // 2. Inversión Activa (Productos en Tránsito o En Stock)
     const activeProducts = products.filter(p => p.status === 'EnTransito' || p.status === 'EnStock' || p.status === 'Comprado');
     const activeInvestment = activeProducts.reduce((sum, p) => sum + p.total_cost_pen, 0);
 

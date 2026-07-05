@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../db/database';
+import { useProducts } from '../hooks/useSupabaseQuery';
 import { Button } from '../components/ui/Button';
 import { StatusBadge } from '../components/ui/Badge';
 import { AddProductModal } from '../components/modals/AddProductModal';
@@ -36,7 +35,7 @@ export default function InventoryPage() {
   const { deleteProduct } = useProductStore();
   const { addToast } = useToastStore();
 
-  const products = useLiveQuery(() => db.products.orderBy('purchase_date').reverse().toArray());
+  const products = useProducts();
 
   const filteredProducts = products?.filter(p => {
     const matchesTab = activeTab === 'Todos' || p.status === activeTab;

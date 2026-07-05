@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../db/database';
+import { useProducts, useSales } from '../hooks/useSupabaseQuery';
 import { Button } from '../components/ui/Button';
 import { StatusBadge } from '../components/ui/Badge';
 import { CheckoutModal } from '../components/modals/CheckoutModal';
@@ -13,21 +12,8 @@ export default function PosPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
 
-  // Solo mostramos productos en stock o que están reservados
-  const availableProducts = useLiveQuery(() => 
-    db.products
-      .where('status')
-      .anyOf(['EnStock'])
-      .toArray()
-  ) || [];
-
-  // Traemos todas las ventas pendientes (adelantos)
-  const pendingSales = useLiveQuery(() => 
-    db.sales
-      .where('is_fully_paid')
-      .equals('false')
-      .toArray()
-  ) || [];
+  const availableProducts = useProducts()?.filter(p => p.status === 'EnStock') || [];
+  const pendingSales = useSales()?.filter(s => !s.is_fully_paid) || [];
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
@@ -36,7 +22,7 @@ export default function PosPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Columna Izquierda: Equipos en Stock listos para vender */}
+              {/* Columna Izquierda: Productos en Stock listos para vender */}
         <div className="space-y-4">
           <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <ShoppingCart className="w-5 h-5 text-brand-600" /> Productos en Stock
@@ -44,7 +30,7 @@ export default function PosPage() {
           
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden divide-y divide-slate-100">
             {availableProducts.length === 0 && (
-              <div className="p-6 text-center text-slate-500">No hay equipos en stock.</div>
+              <div className="p-6 text-center text-slate-500">No hay productos en stock.</div>
             )}
             
             {availableProducts.map(product => (

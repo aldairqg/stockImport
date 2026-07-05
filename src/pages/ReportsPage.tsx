@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../db/database';
+import { useLedger, useProducts, useSales } from '../hooks/useSupabaseQuery';
 import { Button } from '../components/ui/Button';
 import { Download, FileBarChart, Filter } from 'lucide-react';
 import { formatPEN } from '../utils/finance';
@@ -9,9 +8,9 @@ import * as XLSX from 'xlsx';
 export default function ReportsPage() {
   const [selectedMonth, setSelectedMonth] = useState<string>(new Date().toISOString().slice(0, 7)); // YYYY-MM
   
-  const sales = useLiveQuery(() => db.sales.toArray());
-  const products = useLiveQuery(() => db.products.toArray());
-  const ledger = useLiveQuery(() => db.ledger.toArray());
+  const sales = useSales();
+  const products = useProducts();
+  const ledger = useLedger();
 
   // Derive stats for the selected month
   const reportData = useMemo(() => {

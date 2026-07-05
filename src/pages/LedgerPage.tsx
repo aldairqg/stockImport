@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../db/database';
+import { useLedger } from '../hooks/useSupabaseQuery';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { NewCapitalModal } from '../components/modals/NewCapitalModal';
@@ -21,7 +20,7 @@ export default function LedgerPage() {
   const { deleteEntry } = useLedgerStore();
   const { addToast } = useToastStore();
 
-  const ledger = useLiveQuery(() => db.ledger.orderBy('date').reverse().toArray());
+  const ledger = useLedger();
 
   const { penBalance, usdBalance, currentTcpp } = useMemo(() => {
     if (!ledger || ledger.length === 0) return { penBalance: 0, usdBalance: 0, currentTcpp: 3.8 };

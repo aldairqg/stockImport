@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { db } from '../db/database';
+import { supabase } from '../db/database';
 import { Simulation, Product } from '../types/models';
 import { useProductStore } from './useProductStore';
 
@@ -12,15 +12,18 @@ interface SimulationState {
 
 export const useSimulationStore = create<SimulationState>(() => ({
   addSimulation: async (simulation) => {
-    await db.simulations.add(simulation as Simulation);
+    const { error } = await supabase.from('simulations').insert(simulation);
+    if (error) throw new Error(error.message);
   },
 
   updateSimulation: async (id, updates) => {
-    await db.simulations.update(id, updates);
+    const { error } = await supabase.from('simulations').update(updates).eq('id', id);
+    if (error) throw new Error(error.message);
   },
 
   deleteSimulation: async (id) => {
-    await db.simulations.delete(id);
+    const { error } = await supabase.from('simulations').delete().eq('id', id);
+    if (error) throw new Error(error.message);
   },
 
   convertToProduct: async (simulation) => {
@@ -41,15 +44,11 @@ export const useSimulationStore = create<SimulationState>(() => ({
       manual_exchange_rate: simulation.exchange_rate,
       total_cost_pen: simulation.total_cost_pen,
       purchase_date: new Date(),
-      status: 'Comprado'
+      status: 'Comprado',
     };
-
-    // 2. Usar useProductStore para agregar y que descuente de caja
     await useProductStore.getState().addProduct(product);
-
-    // 3. Eliminar la simulación si la compra fue exitosa
     if (simulation.id) {
-      await db.simulations.delete(simulation.id);
+      await supabase.from('simulations').delete().eq('id', simulation.id);
     }
-  }
+  },
 }));

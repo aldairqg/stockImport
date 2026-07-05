@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../db/database';
+import { useLedger, useSimulations } from '../hooks/useSupabaseQuery';
 import { useSimulationStore } from '../store/useSimulationStore';
 import { useToastStore } from '../store/useToastStore';
 import { Button } from '../components/ui/Button';
@@ -21,8 +20,8 @@ export default function SimulatorPage() {
   const { addSimulation, deleteSimulation, convertToProduct } = useSimulationStore();
   const { addToast } = useToastStore();
   
-  const simulations = useLiveQuery(() => db.simulations.orderBy('created_at').reverse().toArray());
-  const ledgerEntries = useLiveQuery(() => db.ledger.orderBy('date').toArray());
+  const simulations = useSimulations();
+  const ledgerEntries = useLedger();
   
   // Extraer último TC de la caja
   const tcpp = useMemo(() => {
@@ -161,7 +160,7 @@ export default function SimulatorPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* FORMULARIO */}
         <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-4">
-          <h2 className="text-lg font-bold text-slate-800 border-b pb-2">Datos del Equipo</h2>
+          <h2 className="text-lg font-bold text-slate-800 border-b pb-2">Datos del Producto</h2>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
@@ -317,7 +316,7 @@ export default function SimulatorPage() {
                     <Trash2 className="w-4 h-4" />
                   </button>
                   <Button variant="primary" size="sm" onClick={() => handleBuy(sim)} className="w-full">
-                    <ShoppingCart className="w-4 h-4 mr-2" /> Comprar Equipo
+                    <ShoppingCart className="w-4 h-4 mr-2" /> Comprar Producto
                   </Button>
                 </div>
               </div>
