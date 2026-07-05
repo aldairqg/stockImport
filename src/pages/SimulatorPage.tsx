@@ -4,7 +4,8 @@ import { useSimulationStore } from '../store/useSimulationStore';
 import { useToastStore } from '../store/useToastStore';
 import { Button } from '../components/ui/Button';
 import { AmountInput } from '../components/ui/AmountInput';
-import { Calculator, Save, ShoppingCart, Trash2, ArrowRight } from 'lucide-react';
+import { NumericInput } from '../components/ui/NumericInput';
+import { Calculator, Save, ShoppingCart, Trash2 } from 'lucide-react';
 import { formatPEN, formatUSD } from '../utils/finance';
 
 const DEFAULT_SETTINGS = {
@@ -36,12 +37,12 @@ export default function SimulatorPage() {
   const [color, setColor] = useState('');
   
   const [priceUsd, setPriceUsd] = useState('');
-  const [taxUsaRate, setTaxUsaRate] = useState(DEFAULT_SETTINGS.tax_usa_rate * 100);
-  const [freightCost, setFreightCost] = useState<string>(String(DEFAULT_SETTINGS.freight_cost_usd));
-  const [opCost, setOpCost] = useState(DEFAULT_SETTINGS.operational_cost_usd);
-  const [peruTaxRate, setPeruTaxRate] = useState(0);
-  const [redChannel, setRedChannel] = useState(DEFAULT_SETTINGS.red_channel_cost_usd);
-  const [imprevistos, setImprevistos] = useState<string>('0');
+  const [taxUsaRate, setTaxUsaRate] = useState('7');
+  const [freightCost, setFreightCost] = useState('25');
+  const [opCost, setOpCost] = useState('5');
+  const [peruTaxRate, setPeruTaxRate] = useState('0');
+  const [redChannel, setRedChannel] = useState('15');
+  const [imprevistos, setImprevistos] = useState('0');
   
   const [expectedSalePricePen, setExpectedSalePricePen] = useState('');
   const [targetMargin, setTargetMargin] = useState(''); // Nuevo input para %
@@ -57,18 +58,23 @@ export default function SimulatorPage() {
   // Auto-detect Peru Tax
   useEffect(() => {
     if (numPrice > DEFAULT_SETTINGS.peru_import_threshold) {
-      setPeruTaxRate(DEFAULT_SETTINGS.peru_import_tax_rate * 100);
+      setPeruTaxRate('24');
     } else {
-      setPeruTaxRate(0);
+      setPeruTaxRate('0');
     }
   }, [numPrice]);
 
-  const taxUsaAmount = numPrice * (taxUsaRate / 100);
-  const peruTaxAmount = numPrice * (peruTaxRate / 100);
+  const numTaxUsa = parseFloat(taxUsaRate) || 0;
+  const numPeruTax = parseFloat(peruTaxRate) || 0;
   const numFreight = parseFloat(freightCost) || 0;
+  const numOpCost = parseFloat(opCost) || 0;
+  const numRedChannel = parseFloat(redChannel) || 0;
   const numImprevistos = parseFloat(imprevistos) || 0;
+
+  const taxUsaAmount = numPrice * (numTaxUsa / 100);
+  const peruTaxAmount = numPrice * (numPeruTax / 100);
   
-  const totalCostUsd = numPrice + taxUsaAmount + numFreight + opCost + peruTaxAmount + redChannel + numImprevistos;
+  const totalCostUsd = numPrice + taxUsaAmount + numFreight + numOpCost + peruTaxAmount + numRedChannel + numImprevistos;
   const numTcManual = parseFloat(tcManual) || tcpp;
   const totalCostPen = totalCostUsd * numTcManual;
 
@@ -118,13 +124,13 @@ export default function SimulatorPage() {
         variante,
         color,
         purchase_price_usd: numPrice,
-        tax_usa_rate: taxUsaRate / 100,
+        tax_usa_rate: numTaxUsa / 100,
         tax_usa_amount: taxUsaAmount,
         freight_cost_usd: numFreight,
-        operational_cost_usd: opCost,
-        peru_import_tax_rate: peruTaxRate / 100,
+        operational_cost_usd: numOpCost,
+        peru_import_tax_rate: numPeruTax / 100,
         peru_import_tax_amount: peruTaxAmount,
-        red_channel_cost_usd: redChannel,
+        red_channel_cost_usd: numRedChannel,
         other_costs_usd: numImprevistos,
         total_cost_usd: totalCostUsd,
         exchange_rate: numTcManual,
@@ -183,29 +189,14 @@ export default function SimulatorPage() {
           <h2 className="text-lg font-bold text-slate-800 border-b pb-2 pt-2">Costos</h2>
           <div className="grid grid-cols-2 gap-4">
             <AmountInput label="Precio Base (USD)" currency="USD" value={priceUsd} onChange={e => setPriceUsd(e.target.value)} />
-            <div>
-              <label className="text-sm font-medium text-slate-700">Tax USA (%)</label>
-              <input type="number" step="0.1" value={taxUsaRate} onChange={e => setTaxUsaRate(parseFloat(e.target.value) || 0)} className="mt-1 block w-full px-3 py-2 border rounded-lg sm:text-sm" />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-700">Flete ($)</label>
-              <input type="text" inputMode="decimal" value={freightCost} onChange={e => setFreightCost(e.target.value)} className="mt-1 block w-full px-3 py-2 border rounded-lg sm:text-sm" />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-700">Tax Perú (%)</label>
-              <input type="number" value={peruTaxRate} onChange={e => setPeruTaxRate(parseFloat(e.target.value) || 0)} className="mt-1 block w-full px-3 py-2 border rounded-lg sm:text-sm" />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-700">Canal Rojo ($)</label>
-              <input type="number" step="0.1" value={redChannel} onChange={e => setRedChannel(parseFloat(e.target.value) || 0)} className="mt-1 block w-full px-3 py-2 border rounded-lg sm:text-sm" />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-700">Imprevistos ($)</label>
-              <input type="text" inputMode="decimal" value={imprevistos} onChange={e => setImprevistos(e.target.value)} placeholder="0" className="mt-1 block w-full px-3 py-2 border rounded-lg sm:text-sm" />
-            </div>
+            <NumericInput label="Tax USA (%)" value={taxUsaRate} onChange={setTaxUsaRate} placeholder="7" />
+            <NumericInput label="Flete ($)" value={freightCost} onChange={setFreightCost} placeholder="25" />
+            <NumericInput label={`Tax Perú (%)${numPrice > DEFAULT_SETTINGS.peru_import_threshold ? ' ✱Aplica' : ''}`} value={peruTaxRate} onChange={setPeruTaxRate} placeholder="0" />
+            <NumericInput label="Canal Rojo ($)" value={redChannel} onChange={setRedChannel} placeholder="15" />
+            <NumericInput label="Imprevistos ($)" value={imprevistos} onChange={setImprevistos} placeholder="0" />
             <div className="col-span-2">
               <label className="text-sm font-medium text-brand-700">Tipo de Cambio Actual</label>
-              <input type="number" step="0.001" value={tcManual} onChange={e => setTcManual(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-brand-200 bg-brand-50 rounded-lg sm:text-sm" />
+              <input type="text" inputMode="decimal" value={tcManual} onChange={e => { if (/^(\d+\.?\d*)?$/.test(e.target.value)) setTcManual(e.target.value); }} className="mt-1 block w-full px-3 py-2 border border-brand-200 bg-brand-50 rounded-lg sm:text-sm focus:ring-2 focus:ring-brand-500" />
             </div>
           </div>
 
@@ -264,7 +255,7 @@ export default function SimulatorPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Canal Rojo:</span>
-                <span>${redChannel.toFixed(2)}</span>
+                <span>${numRedChannel.toFixed(2)}</span>
               </div>
               {numImprevistos > 0 && (
                 <div className="flex justify-between">
