@@ -1,5 +1,5 @@
 export type Currency = 'PEN' | 'USD';
-export type LedgerType = 'Aporte' | 'Retiro' | 'Compra' | 'Venta' | 'Adelanto' | 'CambioDivisa';
+export type LedgerType = 'Aporte' | 'Retiro' | 'Compra' | 'Venta' | 'Adelanto' | 'CambioDivisa' | 'CostoVenta';
 export type ProductStatus = 'Comprado' | 'EnTransito' | 'EnStock' | 'Reservado' | 'Vendido';
 
 export interface LedgerEntry {

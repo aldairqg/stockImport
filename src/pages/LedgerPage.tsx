@@ -109,7 +109,7 @@ export default function LedgerPage() {
                   <tr className="border-b last:border-0 border-slate-100 hover:bg-slate-50/50 transition-colors">
                     <td className="px-4 py-3 font-medium text-slate-700 whitespace-nowrap">{entry.date.toLocaleDateString()}</td>
                     <td className="px-4 py-3">
-                      <Badge variant={entry.amount > 0 ? 'success' : 'danger'}>{entry.type}</Badge>
+                      <Badge variant={entry.amount > 0 ? 'success' : entry.type === 'CostoVenta' ? 'warning' : 'danger'}>{entry.type === 'CostoVenta' ? 'Costo Venta' : entry.type}</Badge>
                     </td>
                     <td className="px-4 py-3 text-slate-600 truncate max-w-[200px] hidden md:table-cell" title={entry.description}>{entry.description}</td>
                     <td className={`px-4 py-3 text-right font-bold whitespace-nowrap ${entry.amount > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>

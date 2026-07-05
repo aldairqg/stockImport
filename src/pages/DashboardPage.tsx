@@ -111,7 +111,7 @@ export default function DashboardPage() {
                     <tr key={entry.id} className="border-b last:border-0 border-slate-100 hover:bg-slate-50/50">
                       <td className="px-4 py-3 font-medium text-slate-700">{entry.date.toLocaleDateString()}</td>
                       <td className="px-4 py-3">
-                        <Badge variant={entry.amount > 0 ? 'success' : 'danger'}>{entry.type}</Badge>
+                        <Badge variant={entry.amount > 0 ? 'success' : entry.type === 'CostoVenta' ? 'warning' : 'danger'}>{entry.type === 'CostoVenta' ? 'Costo Venta' : entry.type}</Badge>
                       </td>
                       <td className="px-4 py-3 text-slate-600 truncate max-w-[150px]">{entry.description}</td>
                       <td className={`px-4 py-3 text-right font-bold ${entry.amount > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
