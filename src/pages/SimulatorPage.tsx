@@ -37,10 +37,11 @@ export default function SimulatorPage() {
   
   const [priceUsd, setPriceUsd] = useState('');
   const [taxUsaRate, setTaxUsaRate] = useState(DEFAULT_SETTINGS.tax_usa_rate * 100);
-  const [freightCost, setFreightCost] = useState(DEFAULT_SETTINGS.freight_cost_usd);
+  const [freightCost, setFreightCost] = useState<string>(String(DEFAULT_SETTINGS.freight_cost_usd));
   const [opCost, setOpCost] = useState(DEFAULT_SETTINGS.operational_cost_usd);
   const [peruTaxRate, setPeruTaxRate] = useState(0);
   const [redChannel, setRedChannel] = useState(DEFAULT_SETTINGS.red_channel_cost_usd);
+  const [imprevistos, setImprevistos] = useState<string>('0');
   
   const [expectedSalePricePen, setExpectedSalePricePen] = useState('');
   const [targetMargin, setTargetMargin] = useState(''); // Nuevo input para %
@@ -64,8 +65,10 @@ export default function SimulatorPage() {
 
   const taxUsaAmount = numPrice * (taxUsaRate / 100);
   const peruTaxAmount = numPrice * (peruTaxRate / 100);
+  const numFreight = parseFloat(freightCost) || 0;
+  const numImprevistos = parseFloat(imprevistos) || 0;
   
-  const totalCostUsd = numPrice + taxUsaAmount + freightCost + opCost + peruTaxAmount + redChannel;
+  const totalCostUsd = numPrice + taxUsaAmount + numFreight + opCost + peruTaxAmount + redChannel + numImprevistos;
   const numTcManual = parseFloat(tcManual) || tcpp;
   const totalCostPen = totalCostUsd * numTcManual;
 
@@ -117,12 +120,12 @@ export default function SimulatorPage() {
         purchase_price_usd: numPrice,
         tax_usa_rate: taxUsaRate / 100,
         tax_usa_amount: taxUsaAmount,
-        freight_cost_usd: freightCost,
+        freight_cost_usd: numFreight,
         operational_cost_usd: opCost,
         peru_import_tax_rate: peruTaxRate / 100,
         peru_import_tax_amount: peruTaxAmount,
         red_channel_cost_usd: redChannel,
-        other_costs_usd: 0,
+        other_costs_usd: numImprevistos,
         total_cost_usd: totalCostUsd,
         exchange_rate: numTcManual,
         total_cost_pen: totalCostPen,
@@ -132,7 +135,7 @@ export default function SimulatorPage() {
         created_at: new Date()
       });
       addToast('Simulación guardada', 'success');
-      setName(''); setPriceUsd(''); setExpectedSalePricePen(''); setTargetMargin(''); setVariante(''); setColor('');
+      setName(''); setPriceUsd(''); setExpectedSalePricePen(''); setTargetMargin(''); setVariante(''); setColor(''); setImprevistos('0');
     } catch (e: any) {
       addToast(e.message || 'Error al guardar', 'error');
     }
@@ -186,11 +189,19 @@ export default function SimulatorPage() {
             </div>
             <div>
               <label className="text-sm font-medium text-slate-700">Flete ($)</label>
-              <input type="number" value={freightCost} onChange={e => setFreightCost(parseFloat(e.target.value) || 0)} className="mt-1 block w-full px-3 py-2 border rounded-lg sm:text-sm" />
+              <input type="text" inputMode="decimal" value={freightCost} onChange={e => setFreightCost(e.target.value)} className="mt-1 block w-full px-3 py-2 border rounded-lg sm:text-sm" />
             </div>
             <div>
               <label className="text-sm font-medium text-slate-700">Tax Perú (%)</label>
               <input type="number" value={peruTaxRate} onChange={e => setPeruTaxRate(parseFloat(e.target.value) || 0)} className="mt-1 block w-full px-3 py-2 border rounded-lg sm:text-sm" />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-700">Canal Rojo ($)</label>
+              <input type="number" step="0.1" value={redChannel} onChange={e => setRedChannel(parseFloat(e.target.value) || 0)} className="mt-1 block w-full px-3 py-2 border rounded-lg sm:text-sm" />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-700">Imprevistos ($)</label>
+              <input type="text" inputMode="decimal" value={imprevistos} onChange={e => setImprevistos(e.target.value)} placeholder="0" className="mt-1 block w-full px-3 py-2 border rounded-lg sm:text-sm" />
             </div>
             <div className="col-span-2">
               <label className="text-sm font-medium text-brand-700">Tipo de Cambio Actual</label>
@@ -236,19 +247,33 @@ export default function SimulatorPage() {
             <h2 className="text-lg font-medium text-slate-300 mb-4">Resumen de Costos</h2>
             <div className="space-y-3 mb-6 border-b border-slate-700 pb-6">
               <div className="flex justify-between">
-                <span className="text-slate-400">Precio Producto:</span>
+                <span className="text-slate-400">Precio Base:</span>
                 <span>${numPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Impuestos (USA + PER):</span>
-                <span>${(taxUsaAmount + peruTaxAmount).toFixed(2)}</span>
+                <span className="text-slate-400">Tax USA ({taxUsaRate}%):</span>
+                <span>${taxUsaAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Logística e Internamiento:</span>
-                <span>${(freightCost + opCost + redChannel).toFixed(2)}</span>
+                <span className="text-slate-400">Flete:</span>
+                <span>${numFreight.toFixed(2)}</span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Tax Perú ({peruTaxRate}%):</span>
+                <span>${peruTaxAmount.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Canal Rojo:</span>
+                <span>${redChannel.toFixed(2)}</span>
+              </div>
+              {numImprevistos > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Imprevistos:</span>
+                  <span>${numImprevistos.toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-lg font-bold text-brand-400 pt-2 border-t border-slate-700 mt-2">
-                <span>Costo Total:</span>
+                <span>Costo Total USD:</span>
                 <span>${totalCostUsd.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-xl font-bold text-white">
